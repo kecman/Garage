@@ -27,6 +27,8 @@ load_wkt :: (filename : string) -> Mesh, success : bool {
     while peek_token(*parser).type != .EOF {
         if eat_possible_directive(*parser, "MULTIPOINT") {
             parse_multipoint(*parser, *result);
+        } else if eat_possible_directive(*parser, "MULTILINESTRING") {
+            parse_multilinestring(*parser, *result);
         } else if eat_possible_directive(*parser, "LINESTRING") {
             parse_linestring(*parser, *result);
         }
@@ -46,6 +48,19 @@ load_wkt :: (filename : string) -> Mesh, success : bool {
 
 is_number :: (t : Token) -> bool {
     return t.type == .INTEGER || t.type == .FLOAT;
+}
+
+parse_multilinestring :: (p : *Parser, mesh : *Mesh, loc := #caller_location) {
+    mesh.geometry_format = .LINES;
+
+    expect_and_eat(p, xx #char "(", loc);
+
+    while peek_token(p).type != .EOF && peek_token(p).type != xx #char ")" {
+        parse_linestring(p, mesh);
+        eat_possible_token(p, xx #char ",");
+    }
+
+    expect_and_eat(p, xx #char ")", loc);
 }
 
 parse_linestring :: (p : *Parser, mesh : *Mesh, loc := #caller_location) {
