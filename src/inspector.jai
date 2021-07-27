@@ -78,7 +78,7 @@ inspect :: (name: *u8, data: *void, info:*Type_Info) {
 
             info_enum := cast(*Type_Info_Enum) info;
 
-            if info_enum.enum_type_flags & .Is_Flags {
+            if info_enum.enum_type_flags & .FLAGS {
                 // @Incomplete How to handle flags?
             } else {
                 value := Reflection.get_enum_value(data, info_enum);
