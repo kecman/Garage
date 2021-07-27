@@ -2,7 +2,7 @@
 CPP_STYLE_COMMENTS :: false;
 
 // for .obj wavefront files
-HASH_CHARACTER_STARTS_COMMENT :: true;
+HASH_CHARACTER_STARTS_COMMENT :: false;
 
 Token :: struct {
 
@@ -228,63 +228,40 @@ get_token :: (lex: *Lexer) -> success: bool, tok: Token {
         return true, tok;
     }
 
-    if is_number(lex.data[0]) {
-        if lex.data[0] == #char "0" && !decimal_string_contains_dot(lex.data) {
-            tok := make_token(lex, .INTEGER);
-            value: u64;
-            eat_char(lex);
+    if lex.data[0] == #char "'" || lex.data[0] == #char "\"" {
 
-            if lex.data[0] == #char "x" || lex.data[0] == #char "X" {
-                eat_char(lex);
+        quote := lex.data[0];
+        eat_char(lex, 1); // eat opening quote
 
-                success := true;
-                while !at_end(lex) && continues_identifier(lex.data[0]) {
-                    if lex.data[0] == #char "_" {
-                        eat_char(lex);
-                        continue;
-                    }
+        tok := make_token(lex, ifx quote == #char "'" then Token.Type.SQSTRING else .DQSTRING);
 
-                    if !is_hex_number(lex.data[0]) {
-                        lex.error_callback(get_location(lex), "invalid character \"%\" in hex constant.\n", slice(lex.data, 0, 1));
-                        success = false;
-                        break;
-                    }
-
-                    value = value << 4;
-                    if is_number(lex.data[0]) value |= (lex.data[0] - #char "0");
-                    else value |= ((to_lower(lex.data[0]) - #char "a") + 0xA);
-                    eat_char(lex);
-                }
-
-                tok.integer_value = cast(s64) value;
-                return success, tok;
-            } else {
-                // octal
-                success := true;
-                while !at_end(lex) && is_number(lex.data[0]) {
-                    if lex.data[0] > #char "7" {
-                        lex.error_callback(get_location(lex), "invalid digit \"%\" in octal constant.\n", slice(lex.data, 0, 1));
-                        success = false;
-                        break;
-                    }
-
-                    value = value << 3;
-                    value |= (lex.data[0] - #char "0");
-                    eat_char(lex);
-                }
-
-                tok.integer_value = cast(s64) value;
-                return success, tok;
-            }
+        success := false;
+        tok.string_value.data = lex.data.data;
+        while !at_end(lex) && lex.data[0] != quote {
+            tok.string_value.count += 1;
+            eat_char(lex, 1);
         }
 
-        // decimal int or float
+        if at_end(lex) {
+            lex.error_callback(get_location(lex), "missing terminating % in string constant.\n", slice(lex.data, 0, 1));
+            return false, make_token(lex, .EOF);
+        }
+
+        eat_char(lex, 1); // eat closing quote
+        return true, tok;
+    }
+
+    if is_number(lex.data[0]) {
+
         if decimal_string_contains_dot(lex.data) {
+
+            // decimal float
             tok := make_token(lex, .FLOAT);
             has_hit_dot := false;
             modifier: float64 = 10.0;
             value: float64;
 
+            // @Cleanup This is a horrible and incorrect way to read the float :/
             success := true;
             while !at_end(lex) && (is_number(lex.data[0]) || lex.data[0] == #char "_" || lex.data[0] == #char ".") {
                 if lex.data[0] == #char "_" {
@@ -319,8 +296,65 @@ get_token :: (lex: *Lexer) -> success: bool, tok: Token {
 
             tok.float_value = value;
             return success, tok;
+
+        } else if lex.data.count > 2 &&
+                  lex.data[0] == #char "0" &&
+                 (lex.data[1] == #char "x" || lex.data[1] == #char "X") {
+
+            // hexadecimal integer
+            tok := make_token(lex, .INTEGER);
+            value: u64;
+            eat_char(lex); // eat 0
+            eat_char(lex); // eat x
+
+            success := true;
+            while !at_end(lex) && continues_identifier(lex.data[0]) {
+                if lex.data[0] == #char "_" {
+                    eat_char(lex);
+                    continue;
+                }
+
+                if !is_hex_number(lex.data[0]) {
+                    lex.error_callback(get_location(lex), "invalid character \"%\" in hex constant.\n", slice(lex.data, 0, 1));
+                    success = false;
+                    break;
+                }
+
+                value = value << 4;
+                if is_number(lex.data[0]) value |= (lex.data[0] - #char "0");
+                else value |= ((to_lower(lex.data[0]) - #char "a") + 0xA);
+                eat_char(lex);
+            }
+
+            tok.integer_value = cast(s64) value;
+            return success, tok;
+
+        } else if lex.data.count > 1 && lex.data[0] == #char "0" {
+
+            // octal integer
+            tok := make_token(lex, .INTEGER);
+            value: u64;
+            eat_char(lex); // eat 0
+
+            success := true;
+            while !at_end(lex) && is_number(lex.data[0]) {
+                if lex.data[0] > #char "7" {
+                    lex.error_callback(get_location(lex), "invalid digit \"%\" in octal constant.\n", slice(lex.data, 0, 1));
+                    success = false;
+                    break;
+                }
+
+                value = value << 3;
+                value |= (lex.data[0] - #char "0");
+                eat_char(lex);
+            }
+
+            tok.integer_value = cast(s64) value;
+            return success, tok;
+
         } else {
-            // decimal int
+
+            // decimal integer
             tok := make_token(lex, .INTEGER);
             value: u64;
 
