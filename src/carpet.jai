@@ -40,3 +40,10 @@ make_Vector2 :: inline (v : ImGui.ImVec2) -> Vector2 {
     result.y = v.y;
     return result;
 }
+
+hack_char_to_string :: (c : *u8) -> string {
+    result : string;
+    result.data = c;
+    result.count = 1;
+    return result;
+}

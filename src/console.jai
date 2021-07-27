@@ -1,10 +1,10 @@
 Command_Info :: struct {
     name : string;
-    procedure : ([] string) -> ();
+    procedure : ([]Any) -> (); // @Cleanup rename this to front_procedure since its set to the generated front_* procedure
 }
 
 Console :: struct {
-    history : [..]string; // different to items in that command feedback is not stored in the history
+    history : [..]string; // different to log in that command feedback is not stored in the history
     history_position : int = -1; // -1: new line, 0..history.count-1 browsing history
     commands : [..]Command_Info;
     log : [..]string;
@@ -53,37 +53,58 @@ console_clear_history :: () {
 console_execute_command :: (_command : string) {
     app.console.history_position = -1;
 
-    command := eat_trailing_spaces(_command);
-    command = eat_spaces(command);
-    if !command.count {
-        return;
+    p : Parser;
+    p.data = _command;
+    p.tokens = get_tokens("console command", p.data);
+    p.current_token = 0;
+
+    if !p.tokens.count return;
+
+    assert(p.tokens[p.tokens.count-1].type == .EOF);
+
+    // Creates an Any in temporary storage so that we can return an Any created from a value on the stack, and have the value_pointer be valid after the stack unrolls
+    copy_any :: (x: Any) -> Any {
+        any: Any = ---;
+        any.type = x.type;
+        any.value_pointer = temporary_alloc(x.type.runtime_size);
+        memcpy(any.value_pointer, x.value_pointer, x.type.runtime_size);
+        return any;
     }
 
-    args : [..]string;
-    args.allocator = __temporary_allocator;
-    {
-        remainder := command;
-        remainder = eat_spaces(remainder);
-        while (remainder.count) {
-            arg : string;
-            arg, remainder = break_by_spaces(remainder);
-            if arg.count {
-                array_add(*args, arg);
-            }
+
+    // @TODO Allow nested function calls?
+    command_name : string;
+    command_args : [..]Any;
+    while !p.failed {
+        tok := peek_token(*p);
+        if tok.type == .EOF {
+            break;
+        } else if tok.type == .IDENTIFIER {
+            command_name = tok.string_value;
+            eat_token(*p);
+        } else if tok.type == .INTEGER {
+            // @TODO Consider adding entity type with literal #NNN
+            array_add(*command_args, copy_any(tok.integer_value));
+            eat_token(*p);
+        } else if tok.type == .FLOAT {
+            array_add(*command_args, copy_any(tok.float_value));
+            eat_token(*p);
+        } else if tok.type == .SQSTRING || tok.type == .DQSTRING {
+            array_add(*command_args, copy_any(tok.string_value));
+            eat_token(*p);
+        } else {
+            console_add_log("[error] When parsing '%' : Unexpected token %.", _command, to_string(tok));
+            return;
         }
     }
 
     found_command := false;
     for app.console.commands {
-        if it.name == args[0] {
+        if it.name == command_name {
 
-            // Strip the procedure name from the argument list
-            args.data += 1;
-            args.count -= 1;
-
-            console_add_history("%", command);
-            console_add_log("%", command);
-            it.procedure(args);
+            console_add_history("%", _command);
+            console_add_log("%", _command);
+            it.procedure(command_args);
 
             found_command = true;
             break;
@@ -91,7 +112,7 @@ console_execute_command :: (_command : string) {
     }
 
     if !found_command {
-        console_add_log("# '%' : Command not found", command);
+        console_add_log("# '%' : Command not found", command_name);
     }
 }
 
