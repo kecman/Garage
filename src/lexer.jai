@@ -251,7 +251,7 @@ get_token :: (lex: *Lexer) -> success: bool, tok: Token {
         return true, tok;
     }
 
-    if is_number(lex.data[0]) {
+    if is_number(lex.data[0]) || lex.data[0] == #char "." {
 
         if decimal_string_contains_dot(lex.data) {
 
