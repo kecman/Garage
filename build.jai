@@ -1,8 +1,23 @@
-#import "Basic";
-#import "Check";
-#import "Compiler";
-#import "Sort";
-#import "String";
+#run build();
+
+help_string :: #string DONE
+
+Build Options:
+  debug      build debug mode (default)
+  release    build release mode
+  checks     enable array bounds checks and fatal cast and math bounds checks
+  boost_on   compile with boost polygon bindings (default off since the library isn't distributed yet)
+
+Build Targets:
+  garage     build garage target (default)
+  test       build test target
+  demo       build demo target
+
+DONE
+
+version_string :: #string DONE
+VERSION_STRING :: "0.1.3-rc";
+DONE
 
 build :: () {
 
@@ -119,8 +134,6 @@ build :: () {
 generated_code := false;
 registered_console_commands : [..]*Code_Procedure_Header;
 
-// @Incomplete error on pointers
-// @Incomplete support optional arguments
 // @Incomplete detect and error on overflow
 generate_code_to_register_console_commands :: (w : Workspace) {
 
@@ -134,6 +147,7 @@ generate_code_to_register_console_commands :: (w : Workspace) {
     // Sort commands by name so that help lists them in alphabetic order
     quick_sort(registered_console_commands, (a,b) => (compare_strings(a.name, b.name)));
 
+    // Generate init_commands function
     Print("init_commands :: () {\n");
     for registered_console_commands {
         path := it.enclosing_load.fully_pathed_filename;
@@ -151,97 +165,113 @@ generate_code_to_register_console_commands :: (w : Workspace) {
     }
     Print("}\n\n");
 
+    // Generate boiler plate for registered console commands
     for command, command_index : registered_console_commands {
-        path := command.enclosing_load.fully_pathed_filename;
+        path   := command.enclosing_load.fully_pathed_filename;
+        plural := ifx command.arguments.count == 1 then "" else "s";
+
+        max_arg_count : int = command.arguments.count;
+        min_arg_count : int = max_arg_count;
+        for arg, arg_index : command.arguments {
+            if arg.expression {
+                min_arg_count -= 1;
+            }
+        }
+        assert(max_arg_count >= min_arg_count);
 
         Print("%_boiler_plate :: (args : []Any) {\n", command.name);
-        Print("    if args.count != % {\n", command.arguments.count);
-        plural : string = ifx command.arguments.count == 1 then "" else "s";
-        Print("        console_add_log(\"[error] expected % argument%, got %%.\", args.count);\n", command.arguments.count, plural);
+        defer Print("}\n\n");
+
+        Print("    // Check number of arguments\n");
+        Print("    if args.count < % || args.count > % {\n", min_arg_count, max_arg_count);
+        if min_arg_count == max_arg_count {
+            Print("        console_add_log(\"[error] expected exactly % argument%, got %%.\", args.count);\n", command.arguments.count, plural);
+        } else {
+            Print("        console_add_log(\"[error] expected between % and % arguments, got %%.\", args.count);\n", min_arg_count, max_arg_count, command.arguments.count);
+        }
         Print("        return;\n");
         Print("    }\n\n");
 
-        // Argument typechecking
-        for arg, arg_index : command.arguments {
+        if command.arguments.count {
+            Print("    // Declare arguments\n");
+            defer Print("\n");
+            for arg, arg_index : command.arguments {
+                if arg.type.type == {
+                    case .INTEGER; Print("    a%1 : int = ---;\n", arg_index);
+                    case .FLOAT;   Print("    a%1 : float = ---;\n", arg_index);
+                    case .STRING;  Print("    a%1 : string = ---;\n", arg_index);
+                    case; compiler_report(path, arg.l0, arg.c0, tprint("Unsupported console command argument type %, only int/float/string are supported.", arg.type.type));
+                }
+            }
+        }
+
+        assign_argument :: (arg : *Code_Declaration, arg_index : int) #expand {
+            indent := "    ";
+            if arg.expression {
+                indent = "        ";
+                Print("    if args.count > % {\n", arg_index);
+            }
 
             if arg.type.type == {
                 case .INTEGER;
-                    Print("    if args[%].type.type != .INTEGER {\n", arg_index);
-                    Print("        console_add_log(\"[error] argument % is not an int\");\n", arg_index);
-                    Print("        return;\n");
-                    Print("    }\n");
+                    Print("%if args[%].type.type == .INTEGER {\n", indent, arg_index);
+                    Print("%    a%2 = xx <<cast(*s64)(args[%2].value_pointer);\n", indent, arg_index);
+                    Print("%} else {\n", indent);
+                    Print("%    console_add_log(\"[error] argument %2 is not an int, its a %%\", args[%2].type.type);\n", indent, arg_index);
+                    Print("%    return;\n", indent);
+                    Print("%}\n", indent);
                 case .FLOAT;
-                    Print("    if args[%1].type.type != .FLOAT || args[%1].type.type != .INTEGER {\n", arg_index);
-                    Print("        console_add_log(\"[error] argument % is not a float (or int)\");\n", arg_index);
-                    Print("        return;\n");
-                    Print("    }\n");
+                    Print("%if args[%].type.type == .FLOAT {\n", indent, arg_index);
+                    Print("%    a%2 = xx <<cast(*float64)(args[%2].value_pointer);\n", indent, arg_index);
+                    Print("%} else if args[%].type.type == .INTEGER {\n", indent, arg_index);
+                    Print("%    a%2 = xx <<cast(*s64)(args[%2].value_pointer);\n", indent, arg_index);
+                    Print("%} else {\n", indent);
+                    Print("%    console_add_log(\"[error] argument %2 is not a number, its a %%\", args[%2].type.type);\n", indent, arg_index);
+                    Print("%    return;\n", indent);
+                    Print("%}\n", indent);
                 case .STRING;
-                    Print("    if args[%].type.type != .STRING {\n", arg_index);
-                    Print("        console_add_log(\"[error] argument % is not an string\");\n", arg_index);
-                    Print("        return;\n");
-                    Print("    }\n");
-                case;
-                    compiler_report(path, arg.l0, arg.c0, tprint("Unsupported console command argument type %, only int/float/string are supported.", arg.type.type));
+                    Print("%if args[%].type.type == .STRING {\n", indent, arg_index);
+                    Print("%    a%2 = xx <<cast(*string)(args[%2].value_pointer);\n", indent, arg_index);
+                    Print("%} else {\n", indent);
+                    Print("%    console_add_log(\"[error] argument %2 is not an string, its a %%\", args[%2].type.type);\n", indent, arg_index);
+                    Print("%    return;\n", indent);
+                    Print("%}\n", indent);
             }
 
+            if arg.expression {
+                Print("    }\n");
+            }
+        }
+
+        if command.arguments.count {
+            Print("    // Set arguments\n");
+            for arg, arg_index : command.arguments {
+                assign_argument(arg, arg_index);
+            }
             Print("\n");
         }
 
-        // Assign values to arguments
-        for arg, arg_index : command.arguments {
+        Print("    // Call the function\n");
+        for arg_count : min_arg_count..max_arg_count {
 
-            if arg.type.type == {
-                case .INTEGER;
-                    Print("    a%1 : int = ---;\n", arg_index);
-                    Print("    a%1 = xx <<cast(*s64)(args[%1].value_pointer);\n", arg_index);
-                case .FLOAT;
-                    Print("    a%1 : float = ---;\n", arg_index);
-                    Print("    if args[%1].type.type != .FLOAT {\n", arg_index);
-                    Print("        a%1 = xx <<cast(*float64)(args[%1].value_pointer);\n", arg_index);
-                    Print("    } else if args[%1].type.type != .INTEGER {\n", arg_index);
-                    Print("        a%1 = xx <<cast(*s64)(args[%1].value_pointer);\n", arg_index);
-                    Print("    }\n");
-                case .STRING;
-                    Print("    a%1 : string = ---;\n", arg_index);
-                    Print("    a%1 = xx <<cast(*string)(args[%1].value_pointer);\n", arg_index);
-                case;
-                    compiler_report(path, arg.l0, arg.c0, tprint("Unsupported console command argument type %, only int/float/string are supported.", arg.type.type));
+            if min_arg_count != max_arg_count {
+                Print("    if args.count == % ", arg_count);
             }
 
-            Print("\n");
+            Print("    %(", command.name);
+            for arg_index : 0..arg_count-1 {
+                comma := ifx arg_index != arg_count-1 then ", " else "";
+                Print("a%1%", arg_index, comma);
+            }
+            Print(");\n");
         }
-
-
-        // Call the function
-        Print("    %(", command.name);
-        for arg, arg_index : command.arguments {
-            comma := ifx arg_index != command.arguments.count - 1 then ", " else "";
-            Print("a%1%", arg_index, comma);
-        }
-        Print(");\n");
-        Print("}\n\n");
     }
 
     add_build_string(builder_to_string(*builder), w);
 }
 
-#run build();
-
-version_string :: #string DONE
-VERSION_STRING :: "0.1.3-rc";
-DONE
-
-help_string :: #string DONE
-
-Build Options:
-  debug      build debug mode (default)
-  release    build release mode
-  checks     enable array bounds checks and fatal cast and math bounds checks
-  boost_on   compile with boost polygon bindings (default off since the library isn't distributed yet)
-
-Build Targets:
-  garage     build garage target (default)
-  test       build test target
-  demo       build demo target
-
-DONE
+#import "Basic";
+#import "Check";
+#import "Compiler";
+#import "Sort";
+#import "String";

@@ -11,23 +11,49 @@ quit :: () {
 } @RegisterCommand
 
 history :: () {
-    for app.console.history {
-        console_add_log("# % %", it_index, it);
-    }
+    for app.console.history console_add_log("# % %", it_index, it);
 } @RegisterCommand
 
 clear :: () {
     console_clear_log();
 } @RegisterCommand
 
+// @Incomplete write usage here too, or write the procedure parameters
 help :: () {
     console_add_log("# Available commands:");
-    for app.console.commands {
-        console_add_log("#  %", it.name); // @Incomplete write usage here too, or write the procedure parameters
-    }
+    for app.console.commands console_add_log("#  %", it.name);
 } @RegisterCommand
 
-// @Incomplete Separate into boiler plate and an actual command (with @RegisterCommand note)
+select_if :: (type : Entity_Type) {
+    for app.entities {
+        it.is_selected = (it.type == type);
+    }
+}
+
+select_if_Polyline_Soup2 :: () { select_if(.POLYLINE_SOUP2); } @RegisterCommand
+select_if_Polyline_Soup3 :: () { select_if(.POLYLINE_SOUP3); } @RegisterCommand
+select_if_Polygon_Soup   :: () { select_if(.POLYGON_SOUP);   } @RegisterCommand
+select_if_Mesh           :: () { select_if(.MESH);           } @RegisterCommand
+
+sort_by_point_count :: (ascending : int = 1) { // @Incomplete: allow this to be a boolean!
+    compare_ascending :: (a : *Entity, b : *Entity) -> s64 {
+        if a.mesh.positions.count == b.mesh.positions.count {
+            return compare_strings(a.fully_pathed_filename, b.fully_pathed_filename);
+        }
+        return compare_floats(xx a.mesh.positions.count, xx b.mesh.positions.count);
+    }
+
+    compare_descending :: (a : *Entity, b : *Entity) -> s64 {
+        if a.mesh.positions.count == b.mesh.positions.count {
+            return compare_strings(b.fully_pathed_filename, a.fully_pathed_filename);
+        }
+        return compare_floats(xx b.mesh.positions.count, xx a.mesh.positions.count);
+    }
+
+    if   ascending quick_sort(app.entities, compare_ascending);
+    else           quick_sort(app.entities, compare_descending);
+} @RegisterCommand
+
 clockwise_boundaries :: (geometry_index : int) {
     // @Refactor move this to boiler plate e.g., by adding special syntax for ints which are geometry indices
     if !check_geometry_index(geometry_index) {

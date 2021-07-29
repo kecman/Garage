@@ -79,7 +79,7 @@ show_item_list_ui :: () {
         if it.display_info.display_mode == .NORMALS {
             ImGui.TextDisabled("NR.");
         } else {
-            color := get_primary_color(it);
+            color := entity_primary_color(it);
             if color {
                 ImGui.ColorEdit4(imgui_label("##color", it), *color.component, ImGui.ColorEditFlags.NoInputs);
             }
@@ -88,7 +88,7 @@ show_item_list_ui :: () {
             cycle_display_mode(*it.display_info.display_mode);
         } else if ImGui.IsItemClicked(.Middle) {
             if it.display_info.display_mode != .NORMALS {
-                color := get_primary_color(it);
+                color := entity_primary_color(it);
                 <<color = color_from_path(it.fully_pathed_filename);
             }
         }
@@ -293,7 +293,7 @@ show_item_list_ui :: () {
                     }
 
                     if set.color_reset {
-                        color  := get_primary_color(it);
+                        color  := entity_primary_color(it);
                         <<color = color_from_path(it.fully_pathed_filename);
                     }
 
@@ -912,21 +912,4 @@ Show_Tooltip :: (description : string) #expand {
         // ImGui.PopTextWrapPos();
         ImGui.EndTooltip();
     }
-}
-
-get_primary_color :: (using entity : *Entity) -> *Vector4 {
-    if #complete type == {
-        case .UNKNOWN;
-        case .POLYLINE_SOUP2; return *display_info.wireframe_color;
-        case .POLYLINE_SOUP3; return *display_info.wireframe_color;
-        case .POLYGON_SOUP;   return *display_info.surface_color;
-        case .MESH;
-            if #complete mesh.geometry_format == {
-                case .UNKNOWN;
-                case .POINTS;    return *display_info.points_color;
-                case .LINES;     return *display_info.wireframe_color;
-                case .TRIANGLES; return *display_info.surface_color;
-            }
-    }
-    return null;
 }
