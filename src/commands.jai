@@ -24,16 +24,25 @@ help :: () {
     for app.console.commands console_add_log("#  %", it.usage);
 } @RegisterCommand
 
-select_if :: (type : Entity_Type) {
+select_if :: (f : (Entity) -> bool) {
+    count := 0;
     for app.entities {
-        it.is_selected = (it.type == type);
+        if f(<<it) {
+            it.is_selected = true;
+            count += 1;
+        } else {
+            it.is_selected = false;
+        }
     }
+    if count == 1 console_add_log("# selected 1 entity");
+    else          console_add_log("# selected % entities", count);
 }
 
-select_if_Polyline_Soup2 :: () { select_if(.POLYLINE_SOUP2); } @RegisterCommand
-select_if_Polyline_Soup3 :: () { select_if(.POLYLINE_SOUP3); } @RegisterCommand
-select_if_Polygon_Soup   :: () { select_if(.POLYGON_SOUP);   } @RegisterCommand
-select_if_Mesh           :: () { select_if(.MESH);           } @RegisterCommand
+select_if_Polyline_Soup2 :: () { select_if((e) => (e.type == .POLYLINE_SOUP2)); } @RegisterCommand
+select_if_Polyline_Soup3 :: () { select_if((e) => (e.type == .POLYLINE_SOUP3)); } @RegisterCommand
+select_if_Polygon_Soup   :: () { select_if((e) => (e.type == .POLYGON_SOUP));   } @RegisterCommand
+select_if_Mesh           :: () { select_if((e) => (e.type == .MESH));           } @RegisterCommand
+select_if_empty          :: () { select_if((e) => (is_empty(e)));               } @RegisterCommand
 
 sort_by_name :: (alphabetical : int = 1) { // @Incomplete: allow this to be a boolean!
     compare_alphabetical :: (a : *Entity, b : *Entity) -> s64 {
