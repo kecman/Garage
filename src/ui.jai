@@ -443,9 +443,9 @@ show_camera_controls :: () {
 
     // @Volatile button text in camera control pane should be kept in sync with keymap!
     right_label, left_label, amount := "<< ", " >>", 5.;
-    if app.modifier_flags.shift_pressed {
+    if io().KeyShift {
         right_label, left_label, amount = "<<<", ">>>", 15.;
-    } else if app.modifier_flags.alt_pressed {
+    } else if io().KeyAlt {
         right_label, left_label, amount = " < ", " > ", 1.;
     }
 

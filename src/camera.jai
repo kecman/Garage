@@ -159,11 +159,11 @@ update_camera :: (delta_time : float) {
         arcball_angle := angle(curr_arcball_vector, prev_arcball_vector);
 
         // @Incomplete make rotation speed an adjustable parameter
-        if app.modifier_flags.shift_pressed {
+        if io().KeyShift {
             // Rotate around the currently chosen camera rotation axis
             arcball_axis_world = camera_rotation_axis();
             arcball_angle = (io().MousePos.y - rmb_down_pos.y) * .02;
-        } else if app.modifier_flags.alt_pressed {
+        } else if io().KeyAlt {
             arcball_angle *= 3.;
         } else {
             arcball_angle *= 30.;
@@ -193,8 +193,8 @@ update_camera :: (delta_time : float) {
     // Disabled for now... it's not very useful and rotating with mouse
 #if false {
         ratio := app.settings.camera_zoom_dragging_ratio;
-        if      app.modifier_flags.alt_pressed   ratio = .97;
-        else if app.modifier_flags.shift_pressed ratio = .5;
+        if      io().KeyAlt   ratio = .97;
+        else if io().KeyShift ratio = .5;
 
         zoom_factor := 1.;
         if      (io().MouseDelta.y > 0) zoom_factor *= ratio;
@@ -205,8 +205,8 @@ update_camera :: (delta_time : float) {
     } else if io().MouseWheel { // Zoom with scroll wheel
 
         ratio := app.settings.camera_zoom_scrolling_ratio;
-        if      app.modifier_flags.alt_pressed   ratio = .97;
-        else if app.modifier_flags.shift_pressed ratio = .5;
+        if      io().KeyAlt   ratio = .97;
+        else if io().KeyShift ratio = .5;
 
         zoom_factor := 1.;
         if      (io().MouseWheel > 0) zoom_factor *= ratio;

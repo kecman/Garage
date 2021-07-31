@@ -255,10 +255,6 @@ handle_events :: () {
     while SDL_PollEvent(*event) {
         ImGui_ImplSDL2_ProcessEvent(*event);
 
-        app.modifier_flags.shift_pressed   = xx (SDL_GetModState() & KMOD_SHIFT);
-        app.modifier_flags.control_pressed = xx (SDL_GetModState() & KMOD_CTRL);
-        app.modifier_flags.alt_pressed     = xx (SDL_GetModState() & KMOD_ALT);
-
         if event.type == {
             case SDL_QUIT; {
                 app.closing_application = true;
@@ -280,7 +276,8 @@ handle_events :: () {
                     app.current_window_height = event.window.data2;
                 }
             case SDL_KEYDOWN; {
-                if io().WantCaptureKeyboard break;
+                // If the control key is down we do not break so that the C-` keybinding for toggling the console window works!
+                if io().WantCaptureKeyboard && !io().KeyCtrl break;
 
                 // @Cleanup move to keymap file
                 if  event.key.keysym.sym == SDLK_F11 {
@@ -291,9 +288,9 @@ handle_events :: () {
 
                 for app.keymap_keydown.mappings {
                     if to_sdl_keycode(it.key_code) == event.key.keysym.sym {
-                        if app.modifier_flags.shift_pressed   == it.modifier_flags.shift_pressed   &&
-                           app.modifier_flags.control_pressed == it.modifier_flags.control_pressed &&
-                           app.modifier_flags.alt_pressed     == it.modifier_flags.alt_pressed {
+                        if io().KeyShift == it.modifier_flags.shift_pressed   &&
+                           io().KeyCtrl  == it.modifier_flags.control_pressed &&
+                           io().KeyAlt   == it.modifier_flags.alt_pressed {
                             app.keymap_keydown.procs[it.proc_info_index].proc();
                             break;
                         }
@@ -305,9 +302,9 @@ handle_events :: () {
 
                 for app.keymap.mappings {
                     if to_sdl_keycode(it.key_code) == event.key.keysym.sym {
-                        if app.modifier_flags.shift_pressed   == it.modifier_flags.shift_pressed   &&
-                           app.modifier_flags.control_pressed == it.modifier_flags.control_pressed &&
-                           app.modifier_flags.alt_pressed     == it.modifier_flags.alt_pressed {
+                        if io().KeyShift == it.modifier_flags.shift_pressed   &&
+                           io().KeyCtrl  == it.modifier_flags.control_pressed &&
+                           io().KeyAlt   == it.modifier_flags.alt_pressed {
                             app.keymap.procs[it.proc_info_index].proc();
                             break;
                         }

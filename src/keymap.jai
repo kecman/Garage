@@ -65,7 +65,7 @@ Keymap :: struct {
 
 init_keymap :: ()
 {
-    // @Incomplete that we don't have clashing key mappings
+    // @Incomplete Check we don't have clashing key mappings
 
     add_key(*app.keymap_keydown, toggle_show_help_ui, "Toggle help UI",  xx #char "h");
     add_key(*app.keymap_keydown, toggle_show_global_settings_ui, "Toggle settings UI",  xx #char "h", .{shift_pressed=true});
