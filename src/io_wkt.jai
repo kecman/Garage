@@ -33,22 +33,24 @@ load_wkt :: (filename : string) -> *Entity {
             entity.mesh.geometry_format = .POINTS;
 
             expect_and_eat(*parser, xx #char "(");
-            point := parse_point(*parser);
+            point2 : Vector2 = ---;
+            point3 : Vector3 = ---;
+            dim := parse_point(*parser, *point2, *point3);
             expect_and_eat(*parser, xx #char ")");
 
             if parser.failed {
 
                 break;
 
-            } else if point.tag == Vector2 {
+            } else if dim == 2 {
 
-                array_add(*entity.mesh.positions, make_vector3(<<isa(point, Vector2), 0));
+                array_add(*entity.mesh.positions, make_vector3(point2, 0));
 
             } else {
 
-                assert(point.tag == Vector3);
+                assert(dim == 3);
 
-                array_add(*entity.mesh.positions, <<isa(point, Vector3));
+                array_add(*entity.mesh.positions, point3);
 
             }
 
@@ -179,27 +181,23 @@ is_number :: (t : Token) -> bool {
     return t.type == .INTEGER || t.type == .FLOAT;
 }
 
-// @Refactor: Just pass in the 2d/3d point and return which was filled in!
-Parsed_Point :: Tagged_Union(Vector2, Vector3);
-
 // Parses and returns a 2D or 3D point, or sets p.failed to true
-parse_point :: (p : *Parser, loc := #caller_location) -> Parsed_Point {
+parse_point :: (p: *Parser, point2 : *Vector2, point3 : *Vector3, loc := #caller_location) -> dim : int {
     dim := 0;
     dim += xx is_number(peek_ahead(p, 0));
     dim += xx is_number(peek_ahead(p, 1));
     dim += xx is_number(peek_ahead(p, 2));
 
-    point : Parsed_Point = ---;
-
-    if dim == 2 {
-        set(*point, parse_vector2(p));
+    if dim == 0 || dim == 1 {
+        // Empty points e.g., Point(), should not have entered this function since the while loops check for the closing paren
+        error(p, peek_token(p), "Unexpected token %.\n", to_string(peek_token(p)));
+    } else if dim == 2 {
+        <<point2 = parse_vector2(p);
     } else if dim == 3 {
-        set(*point, parse_vector3(p));
-    } else {
-        error(p, peek_token(p), "Expected 2D or 3D point, got %.\n", peek_token(p).type);
+        <<point3 = parse_vector3(p);
     }
 
-    return point;
+    return dim;
 }
 
 // @Refactor: Just pass in the container for the 2d/3d points and return which was filled in!
@@ -213,29 +211,32 @@ parse_points :: (p : *Parser, loc := #caller_location) -> Parsed_Points {
     expect_and_eat(p, xx #char "(");
 
     while peek_token(p).type != .EOF && peek_token(p).type != xx #char ")" {
-        point := parse_point(p);
+        point2 : Vector2 = ---;
+        point3 : Vector3 = ---;
+        dim := parse_point(p, *point2, *point3);
 
         if p.failed {
             break;
-        } else if point.tag == Vector2 {
+        } else if dim == 0 || dim == 1{
+            assert(false); // Unreachable since we should have set p.failed in this case!
+        } else if dim == 2 {
             if points.tag == [..]Vector2 {
-                array_add(isa(points, [..]Vector2), <<isa(point, Vector2));
+                array_add(isa(points, [..]Vector2), point2);
             } else if points.tag == [..]Vector3 {
                 error(p, peek_token(p), "Expected 3D point but got a 2D point");
             } else {
                 points_2d : [..]Vector2;
-                array_add(*points_2d, <<isa(point, Vector2));
+                array_add(*points_2d, point2);
                 set(*points, points_2d);
             }
-        } else {
-            assert(point.tag == Vector3);
+        } else if dim == 3 {
             if points.tag == [..]Vector3 {
-                array_add(isa(points, [..]Vector3), <<isa(point, Vector3));
+                array_add(isa(points, [..]Vector3), point3);
             } else if points.tag == [..]Vector2 {
                 error(p, peek_token(p), "Expected 2D point but got a 3D point");
             } else {
                 points_3d : [..]Vector3;
-                array_add(*points_3d, <<isa(point, Vector3));
+                array_add(*points_3d, point3);
                 set(*points, points_3d);
             }
         }
