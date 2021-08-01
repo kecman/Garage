@@ -80,7 +80,7 @@ init_keymap :: ()
     add_key(*app.keymap, toggle_current_selection, "Toggle/complement current item selection", xx #char "a", .{alt_pressed=true});
     add_key(*app.keymap, toggle_current_selection_if_visible, "Toggle/complement visible item selection", xx #char "a", .{shift_pressed=true}); // @Refactor: add sweep selection
 
-    add_key(*app.keymap, reload_entities, "Reload selected items", xx Special_Key_Code.F5);
+    add_key(*app.keymap, reload_selected_items, "Reload selected items", xx Special_Key_Code.F5);
     add_key(*app.keymap, remove_selected_items, "Remove selected items", xx Special_Key_Code.DELETE);
     add_key(*app.keymap, cycle_opacity, "Cycle opacity 20%%/50%%/100%% for selected items", xx #char "o");
     add_key(*app.keymap, cycle_normals_visibility, "Cycle normals visibility for selected items", xx #char "n");
@@ -200,6 +200,12 @@ cycle_wireframe_width :: () {
 toggle_is_visible :: () {
     for app.entities if it.is_selected {
         it.is_visible = !it.is_visible;
+    }
+}
+
+reload_selected_items :: () {
+    for app.entities if it.is_selected {
+        app.entities[it_index] = reload_entity(it);
     }
 }
 

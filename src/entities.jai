@@ -297,28 +297,29 @@ find_closest_vertex_on_visible_entities :: () -> Closest_Vertex_On_Entity {
     return result;
 }
 
-replace_entity :: (old : *Entity, old_index : s64, new : *Entity) {
-    if new {
+// Reload the entity using it's fully_pathed_filename, if loading fails clear the entity
+reload_entity :: (entity : *Entity) -> *Entity {
+
+    new_entity : *Entity = load_entity_from_file(entity.fully_pathed_filename);
+
+    if new_entity {
         // Maintain the following information after the entity reload
-        new.is_visible            = old.is_visible;
-        new.is_selected           = old.is_selected;
-        new.display_info          = old.display_info;
-        new.generation_index      = old.generation_index;
-        new.mesh.world_from_model = old.mesh.world_from_model;
+        new_entity.is_visible            = entity.is_visible;
+        new_entity.is_selected           = entity.is_selected;
+        new_entity.display_info          = entity.display_info;
+        new_entity.generation_index      = entity.generation_index;
+        new_entity.mesh.world_from_model = entity.mesh.world_from_model;
 
-        deinit(old);
+        deinit(entity);
 
-        app.entities[old_index] = new;
+        maybe_update_render_info(*new_entity.render_info, *new_entity.mesh);
+
+        return new_entity;
     }
-}
 
-reload_entities :: () {
-    for app.entities if it.is_selected {
-        entity := load_entity_from_file(it.fully_pathed_filename);
-        if entity {
-            replace_entity(it, it_index, entity);
-        }
-    }
+    clear(entity);
+
+    return entity;
 }
 
 test_load_entity_from_file :: () {

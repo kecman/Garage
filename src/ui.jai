@@ -152,10 +152,7 @@ show_item_list_ui :: () {
             if !it.is_selected {
                 if it.fully_pathed_filename.count {
                     if ImGui.Button(imgui_label("Reload", it)) {
-                        entity := load_entity_from_file(it.fully_pathed_filename);
-                        if entity {
-                            replace_entity(it, it_index, entity);
-                        }
+                        app.entities[it_index] = reload_entity(it);
                     }
                     ImGui.SameLine();
                     text := entity_filename(<<it, with_generation_index=true, with_short_filename=false, with_loaded_time=true);
@@ -231,10 +228,7 @@ show_item_list_ui :: () {
                 for app.entities if it.is_selected {
                     if it.fully_pathed_filename.count {
                         if ImGui.Button(imgui_label("Reload", it)) {
-                            entity := load_entity_from_file(it.fully_pathed_filename);
-                            if entity {
-                                replace_entity(it, it_index, entity);
-                            }
+                            app.entities[it_index] = reload_entity(it);
                         }
                         ImGui.SameLine();
                         text := entity_filename(<<it, with_generation_index=true, with_short_filename=false, with_loaded_time=true);
@@ -243,7 +237,9 @@ show_item_list_ui :: () {
                 }
 
                 if ImGui.Button("Reload Selection") {
-                    reload_entities();
+                    for app.entities if it.is_selected {
+                        app.entities[it_index] = reload_entity(it);
+                    }
                     // ImGui.CloseCurrentPopup();
                 }
 

@@ -62,10 +62,12 @@ compute_vertex_normals_from_triangles :: (using mesh : *Mesh) -> bool, string {
 }
 
 clear :: (using mesh : *Mesh) {
-    // Zeros all the counts, leaves the geometry format unchanged
+    // Zeros all the counts, but keeps the memory
     array_reset_keeping_memory(*positions);
     array_reset_keeping_memory(*normals);
     array_reset_keeping_memory(*indices);
+
+    geometry_format = .UNKNOWN;
 }
 
 deinit :: (using mesh : *Mesh) {
