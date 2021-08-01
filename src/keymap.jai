@@ -99,7 +99,15 @@ init_keymap :: ()
 
     // add_key(*app.keymap, debug_junk, "debug_junk", xx #char " ");
 
-    add_key :: (keymap : *Keymap, proc : () -> (), name : string, key_code : u32, modifier_flags : Modifier_Flags = .{}) {
+    add_key :: (keymap : *Keymap, proc : () -> (), name : string, key_code : u32, modifier_flags : Modifier_Flags = .{}, loc := #caller_location) {
+
+        // Check that the binding is available
+        for keymap.mappings {
+            if it.key_code == key_code && it.modifier_flags == modifier_flags {
+                assert(false, tprint("\nError at %:%:%: Key binding for \"%\" already exists!", loc.fully_pathed_filename, loc.line_number, loc.character_number, name));
+            }
+        }
+
         info := array_add(*keymap.procs);
         info.name = name;
         info.proc = proc;
