@@ -15,8 +15,43 @@
 - [Bug] Fix erratic rotation when rotating about the selected axes
 - [Bug] Fix obj loading for quad faces
 - [Bug] Fix sweep dragging check boxes being affected through overlayed ui e.g., colour picker
-- [DevX] Do an audit/cleanup of the code to make it more hackable by other people
-- [Geometry] Add support for Polygon3
+- [UI/UX] Add clipping plane widgets
+- [UI/UX] Use folding trees in help menu, default to unfolded
+- [UI/UX] Add a circling feature pre-screenshot
+- [UI/UX] Add a hotloading mode to files (Hotloader module not implemented on linux)
+- [UI/UX] Implement simple undo for file loading, would be handy to be able to undo file clobbering...
+- [UI/UX] Load files in a separate thread and report loading progress in the mode line
+- [UI/UX] Feedback when refreshing a file gives the same result
+- [UI/UX] Define a plane and write the world coordinates of the intersection point by the mouse cursor. Use lmb click drag for measuring
+- [UI/UX] Frame rate independent game loop?
+- [UI/UX] :UserConfig Hotload user configurable parameters
+- [UI/UX] When we press "Reset Orbit" we should re-place the camera planes
+- [UI/UX] Sliders to select visible range of indices
+- [UI/UX] Add a defaults.settings file containing options like default visualisation, scroll velocity, ui response dt's etc
+- [UI/UX] Set point-size per-mesh so that point clouds are visible without a non-zero global point size
+- [UI/UX] Add a defaults.keymap file containing bindings, also add files for blender, paraview and cloudnc settings
+- [UI/UX] Hotload the keymap and settings files
+- [UI/UX] Option to render the cumulative vertex number for polyline soups and polygon inner/outer rings or polygon soups
+- [UI/UX] Scale zoom speed with scene bounding box when shift is held?
+- [UI/UX] Implement a view cube using the Simp module
+  - Call SDL_GetWindowWMInfo to get a https://wiki.libsdl.org/SDL_SysWMinfo from which you can get the X11.Window to pass to sim
+        SDL_GetWindowWMInfo(window, *wmInfo);
+        io.ImeWindowHandle = wmInfo.info.win.window;
+- [UI/UX] Scale the axes according to the bbox of the scene?
+- [UI/UX] Arrow keys pan across bounding box?
+- [UI/UX] Write the fully pathed filename even for files loaded on the command line
+- [UI/UX] Handle infinities in files well
+- [UI/UX] Implement arcball constraints cf. http://graphicsinterface.org/wp-content/uploads/gi1992-18.pdf
+- [UI/UX] Write * to indicate an identical first and last point
+- [UI/UX] Sweep drag for removing items from the scene?
+- [UI/UX] Click to copy point coordinate in {1.8e} format so that it can be used as a float literal in code
+- [UI/UX] Implement sliding to show/hide the terminal
+- [UI/UX] Scroll to the bottom of the terminal
+- [UI/UX] Sounds for a more satifying UI?
+- [UI/UX] Render the axes origin in different color when it's a model origin
+- [UI/UX] Add a button to capture a screenshot, look at the Jai Clipboard module
+- [UI/UX] Hover over UI element (button/checkbox) and press a key to bind that key to it, display the bound keys in a list somewhere
+- [UI/UX] When hovering over items in the scene make the others/overlapping ones transparent
 - [UI/UX] Sweep drag improvements
   - have a cooldown rather than just toggling off on exit
   - make it work with scroll wheel in a long item list, does it work already?
@@ -54,14 +89,6 @@
 - [Rendering] Alternate segment colours (two draw calls?)
 - [Rendering] Show grid lines
 - [Rendering] Distribute shaders with source for hot loading/editing them. Pass them lots of unused data then
-- [UI/UX] Add clipping plane widgets
-- [UI/UX] Use folding trees in help menu, default to unfolded
-- [UI/UX] Add a circling feature pre-screenshot
-- [UI/UX] Add a hotloading mode to files (Hotloader module not implemented on linux)
-- [UI/UX] Implement simple undo for file loading, would be handy to be able to undo file clobbering...
-- [UI/UX] Load files in a separate thread and report loading progress in the mode line
-- [UI/UX] Feedback when refreshing a file gives the same result
-- [UI/UX] Define a plane and write the world coordinates of the intersection point by the mouse cursor. Use lmb click drag for measuring
 - [Robustness] Add tests for obj loading
 - [Camera] Improve camera panning, so there's no 'slipping'
 - [Camera] Implement perspective projection
@@ -88,54 +115,30 @@
 - [Commands] edit <id> to popup inspection ui
 - [Commands] assign x # assigns x to the previous result?
 - [Commands] undo/redo
-- [UI/UX] Frame rate independent game loop?
-- [UI/UX] :UserConfig Hotload user configurable parameters
-- [UI/UX] When we press "Reset Orbit" we should re-place the camera planes
-- [UI/UX] Sliders to select visible range of indices
-- [UI/UX] Add a defaults.settings file containing options like default visualisation, scroll velocity, ui response dt's etc
-- [UI/UX] Set point-size per-mesh so that point clouds are visible without a non-zero global point size
-- [UI/UX] Add a defaults.keymap file containing bindings, also add files for blender, paraview and cloudnc settings
-- [UI/UX] Hotload the keymap and settings files
-- [UI/UX] Option to render the cumulative vertex number for polyline soups and polygon inner/outer rings or polygon soups
-- [UI/UX] Scale zoom speed with scene bounding box when shift is held?
-- [UI/UX] Implement a view cube using the Simp module
-  - Call SDL_GetWindowWMInfo to get a https://wiki.libsdl.org/SDL_SysWMinfo from which you can get the X11.Window to pass to sim
-        SDL_GetWindowWMInfo(window, *wmInfo);
-        io.ImeWindowHandle = wmInfo.info.win.window;
-- [Performance,Formats] Natively support heightmaps, have native, simple and fast loading file formats
-- [UI/UX] Scale the axes according to the bbox of the scene?
-- [UI/UX] Arrow keys pan across bounding box?
-- [UI/UX] Write the fully pathed filename even for files loaded on the command line
-- [UI/UX] Handle infinities in files well
-- [Presentation] Explain high-level goals
-- [Refactor] Remove geometry module, just load files
-- [Meta-programming,Testing] Use @test to tag/run tests
-- [UI/UX] Implement arcball constraints cf. http://graphicsinterface.org/wp-content/uploads/gi1992-18.pdf
-- [UI/UX] Write * to indicate an identical first and last point
-- [UI/UX] Sweep drag for removing items from the scene?
-- [UI/UX] Click to copy point coordinate in {1.8e} format so that it can be used as a float literal in code
-- [UI/UX] Implement sliding to show/hide the terminal
-- [UI/UX] Scroll to the bottom of the terminal
-- [Build,DevX] Compiled at time in Window, after version?
+- [IO] Natively support heightmaps, have native, simple and fast loading file formats
+- [IO] Support .ply file formats
+- [IO] Support .off file formats
+- [IO] Support TetGen file formats
+- [README] Explain high-level goals
+- [Cleanup] Do an audit/cleanup of the code to make it more hackable by other people
+- [Cleanup] Remove geometry module, just load files
 - [Cleanup] memory management for things returned by boost polygon module, should copy them on jai side and add a function to the bindings which free the mesh :Cleanup_Construction_Destruction:
 - [Cleanup] Make the polygon/polyline types use slices, not dynamic arrays, put allocators in the top level
+- [Cleanup] Use a union to store entities directly in an array, rather than storing pointers to entities
+- [Meta-programming] Use @test to tag/run tests
 - [Meta-programming] Generate a list of used ImGui functions to simplify transitioning to a newer version
-- [UI/UX] Sounds for a more satifying UI?
 - [Bindings] Improve API, these accept pointers because the c++ functions take const-ref args
 - [Bindings] Can these declarations have notes? Check Preload.jai?
 - [Bindings] Write a function to print in wkt format? simpler custom format?
 - [Bindings] Add libIGL bindings?
-- [UI/UX] Render the axes origin in different color when it's a model origin
+- [Build] Compiled at time in Window, after version?
 - [Build] Bake fonts into the executable
-- [XXL,UI/UX] Buttons with icons which animate when you hover them
+- [Robustness] Just log warnings and ignore the context allocator if it's not malloc, or create a new polygon allocated with malloc if passing to c
+- [XXL] Buttons with icons which animate when you hover them
 - [XXL] Build and add bindings for gmp
 - [XXL] Hotload the C++ bindings, and console commands, so you can keep same UI state while you iterate on your code
 - [XXL] Hotload jai code so that you can keep state while you change your algorithm
-- [Robustness] Just log warnings and ignore the context allocator if it's not malloc, or create a new polygon allocated with malloc if passing to c
 - [XXL] Place a window (circle/square) with a local camera in it that can be oriented to look around the scene
-- [UI/UX] Hover over UI element (button/checkbox) and press a key to bind that key to it, display the bound keys in a list somewhere
-- [UI/UX] When hovering over items in the scene make the others/overlapping ones transparent
-- [XXL,UI/UX] Suggested values when transforming an item
-- [UI/UX] Add a button to capture a screenshot, look at the Jai Clipboard module
-- [XXL,UI/UX] Think about how to do literate programming in Jai, use this to generate the user documentation. Maybe with notes attached to procedures or decalarations? It would be cool to generate context specific help windows using this information in comments/notes somehow, maybe a local variable matching some pattern get processed by a meta program?
+- [XXL] Suggested values when transforming an item
+- [XXL] Think about how to do literate programming in Jai, use this to generate the user documentation. Maybe with notes attached to procedures or decalarations? It would be cool to generate context specific help windows using this information in comments/notes somehow, maybe a local variable matching some pattern get processed by a meta program?
 - [XXL] Think about a plugin system where you write bindings for c++ libraries and benefit from Jai introspection e.g., bind to C++ datastructures/algorithms, and auto generate UI for Jai versions of those for fast experimentation/UI generation
