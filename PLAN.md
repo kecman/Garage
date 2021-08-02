@@ -5,7 +5,6 @@
 - [Bug] Review parsing for floats. If this is broken then reading WKT files may be screwed!!
 - [Bug] What should happen to prevent unwanted clipping when panning with the mouse
 - [UI/UX] Improve camera panning, so there's no 'slipping'
-- [UI/UX,Rendering] Render text over everything else
 - [UI/UX] Make polygon index rendering show the actual indices of the polygon (not the triangulation)
 - [UI/UX] Make more reasonable UI for changing transparency (and have commands that can set it)
 
@@ -26,7 +25,6 @@
 - [UI/UX] Don't close the item context menu unless we LMB into viewport
 - [UI/UX] Make long lists of items managable in the context menu
 - [UI/UX] Make normals clip
-- [UI/UX,Rendering] Add an option not to render backfacing triangles of transparent items
 - [Distribution] Document goals/values in the README.md
 - [UI/UX] Clipping improvements
   - Add plane visualisation, maybe also intersecting the planes
@@ -40,23 +38,32 @@
     - Ex2: Plane clipping using a plane though three selected points would be handy to look at infill paths
 - [UI/UX] Reload files only if they change, and adjust the fade color if the geometry is unchanged
 - [UI/UX] Mode line (bar along bottom) showing hovered mesh stats
+- [Rendering] Render text over everything else
 - [Rendering] Render aabbs when the box extents are hovered in the UI
 - [Rendering] Add option to render normals using only one component
 - [Rendering] Think about how normal rendering should interact with opacity, do we want to see normals through the part?
+- [Rendering] Do a better job transparency
+- [Rendering] Do something with depth rendering? out_color = vec4(vec3(gl_FragCoord.z), 1.);
+- [Rendering] Render by index, or adjust colour by index, or make a ripple by point index
+- [Rendering] Add an option not to render backfacing triangles of transparent items
+- [Rendering] Speed up text rendering, it's so slow right now!
+- [Rendering] Render vertex labels on top of other geometry always
+- [Rendering] Add option to render element labels
+- [Rendering] Mesh element number/segment number rendering
+- [Rendering] Alternate segment colours (two draw calls?)
+- [Rendering] Show grid lines
+- [Rendering] Distribute shaders with source for hot loading/editing them. Pass them lots of unused data then
+- [UI/UX] Add clipping plane widgets
 - [UI/UX] Use folding trees in help menu, default to unfolded
 - [UI/UX] Add a circling feature pre-screenshot
 - [UI/UX] Add a hotloading mode to files (Hotloader module not implemented on linux)
 - [UI/UX] Implement simple undo for file loading, would be handy to be able to undo file clobbering...
-- [Rendering] Do a better job transparency
-- [Rendering] Do something with depth rendering? out_color = vec4(vec3(gl_FragCoord.z), 1.);
 - [UI/UX] Load files in a separate thread and report loading progress in the mode line
 - [UI/UX] Feedback when refreshing a file gives the same result
 - [UI/UX] Define a plane and write the world coordinates of the intersection point by the mouse cursor. Use lmb click drag for measuring
 - [UI/UX,Bug] Print boost polygon unsupported message to the console, log more stuff to the console in general
 - [Robustness] Add tests for obj loading
 - [Bug] Fix erratic rotation when rotating about the selected axes
-- [Rendering] Render by index, or adjust colour by index, or make a ripple by point index
-- [UI/UX,Rendering] Add clipping plane widgets
 - [Camera] Implement perspective projection
 - [Camera] First person camera with strafing and jump/crouch
 - [Camera] Add orbit placement
@@ -75,7 +82,6 @@
 - [Commands] Command to simplify, and show ui with parameters for the simplification
 - [Commands] save_obj <filename> <optional-element-index-list>
 - [UI/UX] When we press "Reset Orbit" we should re-place the camera planes
-- [UI/UX] Mesh element number/segment number rendering
 - [UI/UX] Sliders to select visible range of indices
 - [UI/UX] Add a defaults.settings file containing options like default visualisation, scroll velocity, ui response dt's etc
 - [UI/UX] Set point-size per-mesh so that point clouds are visible without a non-zero global point size
@@ -87,7 +93,6 @@
   - Call SDL_GetWindowWMInfo to get a https://wiki.libsdl.org/SDL_SysWMinfo from which you can get the X11.Window to pass to sim
         SDL_GetWindowWMInfo(window, *wmInfo);
         io.ImeWindowHandle = wmInfo.info.win.window;
-- [Performance] Speed up text rendering, it's so slow right now!
 - [Performance,Formats] Natively support heightmaps, have native, simple and fast loading file formats
 - [UI/UX] Scale the axes according to the bbox of the scene?
 - [UI/UX] Arrow keys pan across bounding box?
@@ -99,8 +104,6 @@
 - [Meta-programming,Commands] Autogenerate code for bingings
 - [Meta-programming,Commands] Autogenerate ui code for bingings
 - [UI/UX] Implement arcball constraints cf. http://graphicsinterface.org/wp-content/uploads/gi1992-18.pdf
-- [Rendering] Render vertex labels on top of other geometry always
-- [Rendering] Add option to render element labels
 - [UI/UX] Write * to indicate an identical first and last point
 - [UI/UX] Sweep drag for removing items from the scene?
 - [UI/UX] Click to copy point coordinate in {1.8e} format so that it can be used as a float literal in code
@@ -111,8 +114,6 @@
 - [Cleanup] Make the polygon/polyline types use slices, not dynamic arrays, put allocators in the top level
 - [Meta-programming] Autogenerate the console registering code to add commands to the console
 - [Meta-programming] Generate a list of used ImGui functions, to simplify transitioning to a newer version
-- [Rendering] Alternate segment colours (two draw calls?)
-- [Rendering] Show grid lines
 - [UI/UX] Sounds for a more satifying UI?
 - [Commands] Implement geometric equals functions for testing, can be used to compare Jai/C++ implementations
 - [Commands] load_obj <filename> to load files (loading files by drag and drop should effectively run this command)
@@ -135,7 +136,6 @@
 - [XXL] Hotload the C++ bindings, and console commands, so you can keep same UI state while you iterate on your code
 - [XXL] Hotload jai code so that you can keep state while you change your algorithm
 - [Robustness] Just log warnings and ignore the context allocator if it's not malloc, or create a new polygon allocated with malloc if passing to c
-- [Rendering] Distribute shaders with source for hot loading/editing them. Pass them lots of unused data then
 - [XXL] Place a window (circle/square) with a local camera in it that can be oriented to look around the scene
 - [UI/UX] Hover over UI element (button/checkbox) and press a key to bind that key to it, display the bound keys in a list somewhere
 - [UI/UX] When hovering over items in the scene make the others/overlapping ones transparent
