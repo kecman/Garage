@@ -54,13 +54,15 @@
 - [UI/UX] Define a plane and write the world coordinates of the intersection point by the mouse cursor. Use lmb click drag for measuring
 - [UI/UX,Bug] Print boost polygon unsupported message to the console, log more stuff to the console in general
 - [Robustness] Add tests for obj loading
-- [Camera,Bug] Fix erratic rotation when rotating about the selected axes
-- [UI/UX,Camera] Implement perspective projection
-  - [UI/UX,Camera] First person camera with strafing and jump/crouch
+- [Bug] Fix erratic rotation when rotating about the selected axes
 - [Rendering] Render by index, or adjust colour by index, or make a ripple by point index
 - [UI/UX,Rendering] Add clipping plane widgets
-- [UI/UX,Camera] Add orbit placement
-- [UI/UX,Camera] Make a function to spiral on the bounding sphere and have it activated via a console command
+- [Camera] Implement perspective projection
+- [Camera] First person camera with strafing and jump/crouch
+- [Camera] Add orbit placement
+- [Camera] Make a function to spiral on the bounding sphere and have it activated via a console command
+- [Camera] Undo/redo system for camera and other operations
+- [Camera] Camera position history/bookmarks with notes/annotations
 - [UI/UX] Frame rate independent game loop?
 - [UI/UX,Bug] Fix obj loading for quad faces
 - [UI/UX] :UserConfig Hotload user configurable parameters
@@ -97,8 +99,6 @@
 - [Meta-programming,Commands] Autogenerate code for bingings
 - [Meta-programming,Commands] Autogenerate ui code for bingings
 - [UI/UX] Implement arcball constraints cf. http://graphicsinterface.org/wp-content/uploads/gi1992-18.pdf
-- [XXL,UI/UX,Camera] Undo/redo system for camera and other operations
-- [UI/UX,Camera] Camera position history/bookmarks with notes/annotations
 - [Rendering] Render vertex labels on top of other geometry always
 - [Rendering] Add option to render element labels
 - [UI/UX] Write * to indicate an identical first and last point
