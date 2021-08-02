@@ -1,6 +1,6 @@
 ## Prioritized
 
-- [Commands] save_session <filename>, load_session <session> to write session state (loaded items, state changes, clipping plane locations etc etc)
+- [Rendering] Matcap rendering similar to polyscope
 - [Bug] JW reported an issue with loading objs that contain quads
 - [Bug] Review parsing for floats. If this is broken then reading WKT files may be screwed!!
 - [Bug] What should happen to prevent unwanted clipping when panning with the mouse
@@ -74,6 +74,7 @@
 - [UI/UX,Bug] Fix obj loading for quad faces
 - [UI/UX] :UserConfig Hotload user configurable parameters
 - [Bug] Fix sweep dragging check boxes being affected through overlayed ui e.g., colour picker
+- [Commands] save_session <filename>, load_session <session> to write session state (loaded items, state changes, clipping plane locations etc etc)
 - [Commands] Add a syntax for specifying what command to run when the app starts
 - [Commands] Command to select/sort items by type, geometric extent, size, number of points/faces, filename etc
 - [Commands] Command to group items by matching wildcard, maybe groups are numbered/lettered so #f.42 is item 42 in group f?
@@ -81,6 +82,16 @@
 - [Commands] Command to compute an animation?
 - [Commands] Command to simplify, and show ui with parameters for the simplification
 - [Commands] save_obj <filename> <optional-element-index-list>
+- [Commands] Autogenerate ui code for bingings
+- [Commands] Implement geometric equals functions for testing, can be used to compare Jai/C++ implementations
+- [Commands] load_obj <filename> to load files (loading files by drag and drop should effectively run this command)
+- [Commands] Implement commands to change the render settings on stuff
+- [Commands] save_wkt <filename>, load_wkt <filename> to load files (loading files by drag and drop should effectively run this command)
+- [Commands] make_float/make_xform/make_mesh
+- [Commands] xform <id> <transform>
+- [Commands] edit <id> to popup inspection ui
+- [Commands] assign x # assigns x to the previous result?
+- [Commands] undo/redo
 - [UI/UX] When we press "Reset Orbit" we should re-place the camera planes
 - [UI/UX] Sliders to select visible range of indices
 - [UI/UX] Add a defaults.settings file containing options like default visualisation, scroll velocity, ui response dt's etc
@@ -101,8 +112,6 @@
 - [Presentation] Explain high-level goals
 - [Refactor] Remove geometry module, just load files
 - [Meta-programming,Testing] Use @test to tag/run tests
-- [Meta-programming,Commands] Autogenerate code for bingings
-- [Meta-programming,Commands] Autogenerate ui code for bingings
 - [UI/UX] Implement arcball constraints cf. http://graphicsinterface.org/wp-content/uploads/gi1992-18.pdf
 - [UI/UX] Write * to indicate an identical first and last point
 - [UI/UX] Sweep drag for removing items from the scene?
@@ -112,18 +121,8 @@
 - [Build,DevX] Compiled at time in Window, after version?
 - [Cleanup] memory management for things returned by boost polygon module, should copy them on jai side and add a function to the bindings which free the mesh :Cleanup_Construction_Destruction:
 - [Cleanup] Make the polygon/polyline types use slices, not dynamic arrays, put allocators in the top level
-- [Meta-programming] Autogenerate the console registering code to add commands to the console
-- [Meta-programming] Generate a list of used ImGui functions, to simplify transitioning to a newer version
+- [Meta-programming] Generate a list of used ImGui functions to simplify transitioning to a newer version
 - [UI/UX] Sounds for a more satifying UI?
-- [Commands] Implement geometric equals functions for testing, can be used to compare Jai/C++ implementations
-- [Commands] load_obj <filename> to load files (loading files by drag and drop should effectively run this command)
-- [Commands] Implement commands to change the render settings on stuff
-- [Commands] save_wkt <filename>, load_wkt <filename> to load files (loading files by drag and drop should effectively run this command)
-- [Commands] make_float/make_xform/make_mesh
-- [Commands] xform <id> <transform>
-- [Commands] edit <id> to popup inspection ui
-- [Commands] assign x # assigns x to the previous result?
-- [Commands] undo/redo
 - [Bindings] Improve API, these accept pointers because the c++ functions take const-ref args
 - [Bindings] Can these declarations have notes? Check Preload.jai?
 - [Bindings] Write a function to print in wkt format? simpler custom format?
