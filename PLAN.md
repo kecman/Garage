@@ -1,7 +1,7 @@
 ## Prioritized
 
 - [Bug] What should happen to prevent unwanted clipping when panning with the mouse
-- [Bug] Review parsing for floats. If this is broken then reading WKT files may be screwed!!
+- [Bug] Review parsing for floats. If this is broken then reading WKT files may be screwed!
 - [Rendering] Matcap rendering similar to polyscope
 - [Rendering] Make polygon index rendering show the actual indices of the polygon (not the triangulation)
 - [UI/UX] Make more reasonable UI for changing transparency (and have commands that can set it)

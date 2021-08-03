@@ -1,4 +1,4 @@
-## Version: v0.1.3, Unreleased
+## Version: v0.1.3, 3 August 2021
 
 - Added ability to register console commands by adding a @RegisterCommand note to procedures
   - Commands are checked to ensure they have 0 return values
