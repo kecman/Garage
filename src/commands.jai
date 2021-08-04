@@ -135,13 +135,12 @@ clear_item :: (item_index : int) {
     console_add_log("# Cleared item #% which had % points", item_index, point_count);
 } @RegisterCommand
 
+#if ENABLE_BOOST_POLYGON {
 clockwise_boundaries :: (item_index : int) {
     // @Refactor move this to boiler plate e.g., by adding special syntax for ints which are geometry indices
     if !check_geometry_index(item_index) {
         return;
     }
-
-#if ENABLE_BOOST_POLYGON {
 
     it := app.entities[item_index];
 
@@ -167,14 +166,9 @@ clockwise_boundaries :: (item_index : int) {
     entity.shape = boundary;
 
     array_add(*app.entities, entity);
-} else {
-    console_add_log("[error] Feature unavailable: compile with 'boost_on'\n");
-    return;
-}
 } @RegisterCommand
 
 offset :: (item_index : int, radius : float) {
-#if ENABLE_BOOST_POLYGON {
 
     // @Refactor move this to boiler plate e.g., by adding special syntax for ints which are geometry indices
     if !check_geometry_index(item_index) {
@@ -210,8 +204,5 @@ offset :: (item_index : int, radius : float) {
     entity.shape = offset_polygon;
 
     array_add(*app.entities, entity);
-} else {
-    console_add_log("[error] Feature unavailable: compile with 'boost_on'\n");
-    return;
-}
 } @RegisterCommand
+}
