@@ -16,7 +16,7 @@ Build Targets:
 DONE
 
 version_string :: #string DONE
-VERSION_STRING :: "0.1.3";
+VERSION_STRING :: "0.1.4-rc";
 DONE
 
 build :: () {

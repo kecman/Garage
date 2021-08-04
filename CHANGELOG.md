@@ -1,3 +1,7 @@
+## Version: v0.1.4, Unreleased
+
+- Changed line rendering for mesh edges to be shaded as a solid color, using blinn-phong made it harder to see
+
 ## Version: v0.1.3, 3 August 2021
 
 - Added ability to register console commands by adding a @RegisterCommand note to procedures

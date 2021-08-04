@@ -190,7 +190,7 @@ render_mesh_lines :: (mesh : *Mesh, using render_info : *Render_Info, using disp
     if !wireframe_visible return;
     Render_Mesh_Common(mesh, render_info, display_info);
 
-    glUniform1i(glGetUniformLocation(app.mesh_program, "display_mode"), xx Display_Mode.BLINN_PHONG);
+    glUniform1i(glGetUniformLocation(app.mesh_program, "display_mode"), xx Display_Mode.SOLID_COLOR);
     glUniform1ui(glGetUniformLocation(app.mesh_program, "screentone_backfaces"), xx false);
     glUniform4f(glGetUniformLocation(app.mesh_program, "color"), wireframe_color.x, wireframe_color.y, wireframe_color.z, wireframe_color.w);
 
