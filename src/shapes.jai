@@ -2,7 +2,7 @@
 
 par_shapes_mesh :: struct
 {
-    // TODO use array views and a single allocator
+    // @Cleanup explicitly store allocator/allocator_data and use array views? see Hash_Table.jai
     points : [..]Vector3;
     Triangle :: [3]u32;
     triangles : [..]Triangle;

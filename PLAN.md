@@ -106,6 +106,7 @@
 - [Commands] edit <id> to popup inspection ui
 - [Commands] assign x # assigns x to the previous result?
 - [Commands] undo/redo
+- [Commands] set_item_tooltip, set_item_label_color, set_selection_tooltip set_selection_label_color, sort_by_type
 - [IO] Natively support heightmaps, have native, simple and fast loading file formats
 - [IO] Support .stl file formats
 - [IO] Support .ply file formats

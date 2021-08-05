@@ -19,7 +19,6 @@ clear :: () {
     console_clear_log();
 } @RegisterCommand
 
-// @Incomplete write usage here too, or write the procedure parameters
 help :: () {
     console_add_log("# Available commands:");
     for app.console.commands console_add_log("#  %", it.usage);
@@ -61,15 +60,7 @@ select_if_match :: (pattern : string) {
     else          console_add_log("# selected % entities", count);
 } @RegisterCommand
 
-
-// @Incomplete
-// set_item_tooltip
-// set_item_label_color
-// set_selection_tooltip
-// set_selection_label_color
-// sort_by_type
-
-sort_by_name :: (alphabetical : int = 1) { // @Incomplete: allow this to be a boolean!
+sort_by_name :: (alphabetical : int = 1) {
     compare_alphabetical :: (a : *Entity, b : *Entity) -> s64 {
         return compare_strings(a.fully_pathed_filename, b.fully_pathed_filename);
     }
@@ -82,7 +73,7 @@ sort_by_name :: (alphabetical : int = 1) { // @Incomplete: allow this to be a bo
     else              quick_sort(app.entities, compare_reverse_alphabetical);
 } @RegisterCommand
 
-sort_by_time :: (ascending : int = 1) { // @Incomplete: allow this to be a boolean!
+sort_by_time :: (ascending : int = 1) {
     compare_ascending :: (a : *Entity, b : *Entity) -> s64 {
         // @Cleanup This is a pretty weird way to do this...
         at := filetime_to_readable_date(a.loaded_filetime);
@@ -103,7 +94,7 @@ sort_by_time :: (ascending : int = 1) { // @Incomplete: allow this to be a boole
     else           quick_sort(app.entities, compare_descending);
 } @RegisterCommand
 
-sort_by_size :: (ascending : int = 1) { // @Incomplete: allow this to be a boolean!
+sort_by_size :: (ascending : int = 1) {
     compare_ascending :: (a : *Entity, b : *Entity) -> s64 {
         if a.mesh.positions.count == b.mesh.positions.count {
             return compare_strings(a.fully_pathed_filename, b.fully_pathed_filename);
@@ -136,6 +127,7 @@ clear_item :: (item_index : int) {
 } @RegisterCommand
 
 #if ENABLE_BOOST_POLYGON {
+
 clockwise_boundaries :: (item_index : int) {
     // @Refactor move this to boiler plate e.g., by adding special syntax for ints which are geometry indices
     if !check_geometry_index(item_index) {
@@ -170,19 +162,18 @@ clockwise_boundaries :: (item_index : int) {
 
 offset :: (item_index : int, radius : float) {
 
-    // @Refactor move this to boiler plate e.g., by adding special syntax for ints which are geometry indices
     if !check_geometry_index(item_index) {
         return;
     }
 
-    // @CompilerBug I don't see the entities global in gdb here?? This is probably fixed (according to the Jai changelog, need to verify)
+    // @CompilerBug We don't see the app global in gdb here
 
     it := app.entities[item_index];
 
     if it.type != .POLYLINE_SOUP2 {
         yet := ifx it.type == .POLYGON_SOUP then " yet " else " ";
         console_add_log("[error] offset not%supported for entity type %", yet, it.type);
-        return; // @Incomplete support polygons
+        return;
     }
 
     console_add_log("# offsetting % by % and returning boundaries", item_index, radius);
@@ -205,4 +196,5 @@ offset :: (item_index : int, radius : float) {
 
     array_add(*app.entities, entity);
 } @RegisterCommand
-}
+
+} // ENABLE_BOOST_POLYGON

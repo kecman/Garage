@@ -201,7 +201,7 @@ console_draw :: () {
         text_input_flags :=  ImGui.InputTextFlags.EnterReturnsTrue | .CallbackCompletion | .CallbackHistory;
         if (ImGui.InputText("", app.console.input_buffer.data, app.console.input_buffer.count, text_input_flags, text_edit_callback, *app.console)) {
             defer app.console.input_buffer[0] = 0; // Wipe input after processing
-            console_execute_command(to_string(app.console.input_buffer.data, str_length(app.console.input_buffer.data)));
+            console_execute_command(to_string(app.console.input_buffer.data, c_style_strlen(app.console.input_buffer.data)));
         }
         ImGui.PopItemWidth();
 
@@ -218,12 +218,6 @@ console_draw :: () {
 }
 
 #scope_file
-
-str_length :: (x: *u8) -> int @pure {  // Copied from String.jai to avoid dependency.
-    p := x;
-    while << p  { p += 1; }
-    return p - x;
-}
 
 print_location :: (loc := #caller_location) {
     print("%:%\n", loc.fully_pathed_filename, loc.line_number);
@@ -365,7 +359,7 @@ text_edit_callback :: (data : *ImGui.InputTextCallbackData) -> s32 #c_call {
                         data.BufTextLen = 0;
                     }
 
-                    assert(str_length(data.Buf) == data.BufTextLen);
+                    assert(c_style_strlen(data.Buf) == data.BufTextLen);
 
                     data.SelectionStart = data.CursorPos;
                     data.SelectionEnd = data.CursorPos;

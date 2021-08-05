@@ -30,7 +30,7 @@ App :: struct {
     background_style := Background_Style.CUSTOM_SHADER;
     background_solid_color := Vector4.{170./256, 170./256, 170./256, 1.00};
     background_program : GLuint;
-    background_vao : GLuint; // Makes GL happy
+    background_vao : GLuint;
 
     show_ui := true;
     show_global_settings_ui := false;
@@ -74,7 +74,7 @@ App :: struct {
     keymap_keydown : Keymap;
     settings : User_Settings;
 
-    closing_application := false; // Set this to true to close the application
+    closing_application := false; // Set this to true to quit the application on the next frame
     show_imgui_demo_window := true;
 }
 

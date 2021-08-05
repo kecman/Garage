@@ -1,25 +1,20 @@
-Geometry_Format :: enum {
-    UNKNOWN;
-    POINTS;
-    LINES;
-    TRIANGLES;
-}
-
-// Maybe this should be polymorphic on the vertex type?
 Mesh :: struct {
     geometry_format := Geometry_Format.UNKNOWN;
 
-    // @Cleanup Store vertices/normals as a flat array to better support 2D polylines? Maybe 'subclass' mesh with using
-
-    // allocator :      Allocator;
-    // allocator_data : *void;
-
+    // @Cleanup explicitly store allocator/allocator_data and use array views? see Hash_Table.jai
     positions : [..]Vector3;
     normals :  [..]Vector3;
     indices :  [..]u32;
     // texture_uvs : [..]Vector2; @Incomplete
 
     world_from_model : Matrix4 = .{_11 = 1, _22 = 1, _33 = 1, _44 = 1};
+}
+
+Geometry_Format :: enum {
+    UNKNOWN;
+    POINTS;
+    LINES;
+    TRIANGLES;
 }
 
 copy_mesh :: (using mesh : Mesh) -> *Mesh {
@@ -79,12 +74,6 @@ deinit :: (using mesh : *Mesh) {
     array_reset(*indices);
 
     geometry_format = .UNKNOWN;
-}
-
-print_Mesh :: (using mesh : Mesh) {
-    print("print_Mesh %\n", mesh);
-    for positions print("- vtx[%] %\n", it_index, it);
-    for indices  print("- idx[%] %\n", it_index, it);
 }
 
 bounding_box :: (using mesh : Mesh) -> AxisBox3 #must {

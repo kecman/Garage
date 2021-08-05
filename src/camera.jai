@@ -88,8 +88,6 @@ init_camera :: () {
     camera.right = camera.top * current_window_aspect_ratio_width_over_height();
     camera.left = -camera.right;
 
-    // camera.fov_vertical_radians = 2 * atan2(camera.top, camera.eye_position.z);
-
     camera.near = -100;
     camera.far = 400;
 }
@@ -104,14 +102,8 @@ update_camera :: (delta_time : float) {
         camera_at_mouse_down = app.camera;
     }
 
-    if ImGui.IsMouseClicked(.Middle) {
-        mmb_down_pos = make_Vector2(io().MousePos);
-    }
-
     // Mouse delta is zero when current or previous mouse positions were invalid
     mouse_move_valid := !(io().MouseDelta.x == 0 && io().MouseDelta.y == 0);
-
-    // camera.fov_vertical_radians = 2 * atan2(camera.top, camera.eye_position.z);
 
     world_from_projection := inverse(make_projection_from_world(<<camera));
 
@@ -158,7 +150,6 @@ update_camera :: (delta_time : float) {
 
         arcball_angle := angle(curr_arcball_vector, prev_arcball_vector);
 
-        // @Incomplete make rotation speed an adjustable parameter
         if io().KeyShift {
             // Rotate around the currently chosen camera rotation axis
             arcball_axis_world = camera_rotation_axis();
@@ -188,20 +179,6 @@ update_camera :: (delta_time : float) {
         camera.eye_position = camera_at_mouse_down.look_position + look_to_eye;
         camera.up_direction = rotate(camera_at_mouse_down.up_direction, q);
 
-    } else if io_mouse_right_down() && mouse_move_valid { // Zoom with right down
-
-    // Disabled for now... it's not very useful and rotating with mouse
-#if false {
-        ratio := app.settings.camera_zoom_dragging_ratio;
-        if      io().KeyAlt   ratio = .97;
-        else if io().KeyShift ratio = .5;
-
-        zoom_factor := 1.;
-        if      (io().MouseDelta.y > 0) zoom_factor *= ratio;
-        else if (io().MouseDelta.y < 0) zoom_factor /= ratio;
-        handle_zoom(zoom_factor, rmb_down_pos, app.settings.camera_zoom_dragging_follows_cursor);
-}
-
     } else if io().MouseWheel { // Zoom with scroll wheel
 
         ratio := app.settings.camera_zoom_scrolling_ratio;
@@ -213,8 +190,6 @@ update_camera :: (delta_time : float) {
         else if (io().MouseWheel < 0) zoom_factor /= ratio;
         handle_zoom(zoom_factor, make_Vector2(io().MousePos), !io().KeyCtrl);
     }
-
-    // print("update_camera: %\n", <<camera);
 }
 
 handle_zoom :: (zoom_factor : float, previous_pos : Vector2, follow_cursor : bool) {
@@ -369,7 +344,6 @@ to_ndc :: (position_px : Vector2) -> Vector2
     y = 2 * (clamp(position_px.y, 0., xx app.current_window_height) / cast(float)app.current_window_height) - 1;
     y *= -1; // (-1,-1) => bottom-left of screen, (+1,+1) => top-right of screen
 
-    // print("NDC : %", position_ndc);
     assert(x >= -1 && x <= 1, "Expected NDC x coordinates to be in range [-1,+1], got %", x);
     assert(y >= -1 && y <= 1, "Expected NDC y coordinates to be in range [-1,+1], got %", y);
 
@@ -460,6 +434,4 @@ arcball_vector :: (mouse_position_px : Vector2) -> Vector3
 }
 
 camera_at_mouse_down : Camera;
-// lmb_down_pos : Vector2; // @Cleanup: replace this state with ImGui: use GetMouseDragDelta
 rmb_down_pos : Vector2; // @Cleanup: replace this state with ImGui: use GetMouseDragDelta
-mmb_down_pos : Vector2; // @Cleanup: replace this state with ImGui: use GetMouseDragDelta

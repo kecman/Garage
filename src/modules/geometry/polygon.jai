@@ -1,5 +1,3 @@
-// @Cleanup explicitly store allocator/allocator_data and use array views? see e.g., Hash_Table.jai
-
 //
 // Ring. A closed line (last point == first point) which should not be self-intersecting, inside is on the left of the points
 //
@@ -18,8 +16,7 @@ deinit :: (shape : *Ring) {
     array_reset(*shape.points);
 }
 
-area :: (using ring : Ring) -> float
-{
+area :: (using ring : Ring) -> float {
     // See http://geomalgorithms.com/a01-_area.html#2D%20Polygons
     // A more efficient version needs to iterate over triples of vertices
     area := 0.;
@@ -35,6 +32,7 @@ area :: (using ring : Ring) -> float
 //
 
 Polygon :: struct {
+    // @Cleanup explicitly store allocator/allocator_data and use array views? see Hash_Table.jai
     outer_ring : Ring;
     inner_rings : [..]Ring;
 }
@@ -53,13 +51,11 @@ deinit :: (shape : *Polygon) {
     array_reset(*shape.inner_rings);
 }
 
-bounding_box :: (using polygon : Polygon) -> AxisBox2
-{
+bounding_box :: (using polygon : Polygon) -> AxisBox2 {
     return make_axis_box(..outer_ring.points);
 }
 
-area :: (using polygon : Polygon) -> float
-{
+area :: (using polygon : Polygon) -> float {
     result := area(outer_ring);
     for inner_rings {
         result += area(it);
@@ -67,8 +63,7 @@ area :: (using polygon : Polygon) -> float
     return result;
 }
 
-point_count :: (using polygon : Polygon) -> int
-{
+point_count :: (using polygon : Polygon) -> int {
     count := outer_ring.points.count;
     for ring : inner_rings {
         count += ring.points.count;
@@ -80,8 +75,7 @@ point_count :: (using polygon : Polygon) -> int
 // Iterators.
 //
 
-point_iterator :: (using polygon : *Polygon, body : Code, flags : For_Flags, reverse : bool) #expand
-{
+point_iterator :: (using polygon : *Polygon, body : Code, flags : For_Flags, reverse : bool) #expand {
     BY_POINTER :: cast(bool)(flags & .POINTER);
     #if flags & .POINTER {
     `it : *Vector2 = ---;
@@ -110,8 +104,7 @@ point_iterator :: (using polygon : *Polygon, body : Code, flags : For_Flags, rev
 point_forward_iterator :: #bake_arguments point_iterator(reverse=false);
 point_reverse_iterator :: #bake_arguments point_iterator(reverse=true);
 
-edge_iterator :: (using ring : *Ring, body : Code, flags : For_Flags) #expand
-{
+edge_iterator :: (using ring : *Ring, body : Code, flags : For_Flags) #expand {
     #assert(flags == 0); // No options are supported.
 
     edge_count := points.count - 1;
@@ -149,34 +142,10 @@ deinit :: (shape : *Polygon_Soup) {
     array_reset(*shape.polygons);
 }
 
-point_count :: (using polygon_soup : Polygon_Soup) -> int
-{
+point_count :: (using polygon_soup : Polygon_Soup) -> int {
     count : int;
     for polygon : polygon_soup.polygons {
         count += point_count(polygon);
     }
     return count;
-}
-
-print_Polygon_Soup :: (shape : Polygon_Soup, print_points : bool = false)
-{
-    print("print_Polygon_Soup:\n %\n", shape);
-    for shape.polygons {
-        print("  outer_ring\n %\n", it.outer_ring);
-        for it.inner_rings {
-            print("  inner_ring[%]\n %\n", it_index, it);
-        }
-        if print_points {
-            print("  outer_ring points: ");
-            for it.outer_ring.points {
-                print("[%] %,", it_index, it);
-            }
-            for it.inner_rings {
-                print("\n  inner_ring[%] points: ", it_index);
-                for it.points {
-                    print("[%] %,", it_index, it);
-                }
-            }
-        }
-    }
 }

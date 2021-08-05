@@ -234,7 +234,6 @@ load_from_command_line :: () {
     args := get_command_line_arguments();
     defer array_free(args);
     for 1..args.count-1 {
-        // @Robustness handle wildcards properly
         if find_any_char(args[it], "*") {
             files := file_list(".", false, false);
             defer array_free(files);

@@ -42,7 +42,6 @@ Polygon_Soup_Entity :: struct {
     using base : Entity;
     type = .POLYGON_SOUP;
 
-    // @TODO add edge mesh for rendering, it'll duplicate the shape data but saves on rendering code
     shape : Polygon_Soup;
 }
 
@@ -328,30 +327,4 @@ reload_entity :: (entity : *Entity) -> *Entity {
     clear(entity);
 
     return entity;
-}
-
-test_load_entity_from_file :: () {
-    print("Running 'test_load_entity_from_file'...");
-
-    success : bool;
-    objfile : File;
-
-    test_filename := "__garage_testing.obj";
-    objfile, success =  file_open(test_filename, for_writing=true, keep_existing_content=false);
-    assert(success);
-
-    TEST1 :: #string DONE
-v 10 10 10
-v 20 10 10
-l 1 2
-DONE;
-    success = file_write(*objfile, TEST1);
-    assert(success);
-
-    entity : *Entity;
-    entity = load_entity_from_file(test_filename);
-    assert(entity != null);
-    assert(entity.type == .POLYLINE_SOUP2);
-
-    print("PASSED\n");
 }

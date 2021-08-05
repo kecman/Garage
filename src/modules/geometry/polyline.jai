@@ -76,25 +76,12 @@ bounding_box :: (using polyline_soup : $T/Polyline_Soup) -> AxisBox(T.Point) #mu
     return box;
 }
 
-point_count :: (using polyline_soup : $T/Polyline_Soup) -> int
-{
+point_count :: (using polyline_soup : $T/Polyline_Soup) -> int {
     count : int;
     for polyline : polyline_soup.polylines {
         count += polyline.points.count;
     }
     return count;
-}
-
-print_Polyline_Soup :: (shape : $T/Polyline_Soup, print_points := false) {
-    print("print_Polyline_Soup: \n%\n", shape);
-    for l, li : shape.polylines {
-        print("- line[%] %\n", li, l);
-        if print_points {
-            for p, pi : l.points {
-                print("-- point[%] %\n", pi, p);
-            }
-        }
-    }
 }
 
 #scope_file
