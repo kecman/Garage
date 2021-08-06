@@ -574,7 +574,7 @@ show_help_ui :: () {
 
     // ImGui.NewLine();
     ImGui.Text("                                                                                ");
-    ImGui.Text("Note: S=Shift, C=Ctrl, A=Alt");
+    ImGui.Text("Note: S=Shift, C=Ctrl, A=Alt, SPC=Space bar");
 
     // @Incomplete add a message about where the keymap is for editing
 }

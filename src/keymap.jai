@@ -52,7 +52,9 @@ to_string :: (using mapping : Single_Key_Mapping) -> string {
     if modifier_flags.control_pressed print_to_builder(*builder, "C-");
     if modifier_flags.alt_pressed     print_to_builder(*builder, "A-");
     if modifier_flags.shift_pressed   print_to_builder(*builder, "S-");
-    if key_code >= 32 {
+    if key_code == 32 {
+        print_to_builder(*builder, "SPC");
+    } else if key_code > 32 {
         // upper_case := to_upper(cast(u8) key_code);
         upper_case := cast(u8) key_code;
         cstr: string;   // This is a dumb way to make a one-character string so you can print it.
@@ -121,7 +123,7 @@ init_keymap :: () {
     add_key(*app.keymap, rotate_look_direction_15_ccw, "Rotate -5  deg about selected rotation axis", xx #char "[", .{shift_pressed=true});
 
     // Reserved! Do not change this binding
-    add_key(*app.keymap, my_debug_function, "my_debug_function", xx #char " ");
+    add_key(*app.keymap, my_debug_function, "Call my_debug_function", xx #char " ");
 
     add_key :: (keymap : *Keymap, proc : ()->(),
                 name : string,
