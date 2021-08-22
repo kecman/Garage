@@ -234,16 +234,30 @@ load_from_command_line :: () {
     args := get_command_line_arguments();
     defer array_free(args);
     for 1..args.count-1 {
-        if find_any_char(args[it], "*") {
-            files := file_list(".", false, false);
+
+        // file_list uses the / separator but on windows we may have passed an input using the \ separator, so we fix that here.
+        pattern := args[it];
+        path_overwrite_separators(pattern, #char "/");
+
+        if find_index_of_any_from_left(pattern, "*?[-]") != -1 {
+            files := file_list(".", recursive=true, follow_symlinks=false);
             defer array_free(files);
-            for file, _ : files {
-                if wildcard_match(file, args[it]) {
+            for _file, file_index : files {
+
+                // @Cleanup This is really annoying. file_list gives different results on windows/linux
+#if OS == .WINDOWS {
+                // Trim the leading ./
+                file := _file;
+                file.data += 2;
+                file.count -= 2;
+}
+
+                if wildcard_match(file, pattern) {
                     load_one_file(file);
                 }
             }
         } else {
-            load_one_file(args[it]);
+            load_one_file(pattern);
         }
     }
     fit_scene_on_screen();

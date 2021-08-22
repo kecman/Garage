@@ -18,7 +18,7 @@ init_font :: () {
         exit(1); // Hard-exit for now.
     }
 
-    exe_found, exe_path, exe_name := split_by_character_from_right(get_path_of_running_executable(), #char "/");
+    exe_found, exe_path, exe_name := split_from_right(get_path_of_running_executable(), #char "/");
     if !exe_found {
         print("Error: Unable to find my own executable?!\n");
         exit(1); // Hard-exit for now.

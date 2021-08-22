@@ -257,16 +257,38 @@ Triangle :: struct {
 }
 
 parse_triangle :: (handler : *Text_File_Handler, str : string) -> Triangle {
+    // Returns the number of ocurrences of the string 'substring' inside the string 'to_search'.
+    // Does not consider overlapping matches, for example, count("AAAA", "AAA") returns 1.
+    count_substring_matches :: (to_search: string, substring: string) -> int {
+        if substring.count == 0               return 0;
+        if to_search.count < substring.count  return 0;
+
+        cursor := to_search.data;
+        end    := cursor + to_search.count - substring.count;
+
+        result := 0;
+        while cursor <= end {
+            if memcmp(cursor, substring.data, substring.count) == 0 {
+                result += 1;
+                cursor += substring.count;
+            } else {
+                cursor += 1;
+            }
+        }
+
+        return result;
+    }
+
     t : Triangle;
 
-    if count(str, "/") == 0 {
+    if count_substring_matches(str, "/") == 0 {
         ok := scan2(str, "% % %", *t.indices[0], *t.indices[1], *t.indices[2]);
         if !ok error(<< handler, "Invalid 'f' line\n");
 
         return t;
     }
 
-    if count(str, "//") == 3 {
+    if count_substring_matches(str, "//") == 3 {
         ok := scan2(str, "%//% %//% %//%", *t.indices[0], *t.normal[0],
                                            *t.indices[1], *t.normal[1],
                                            *t.indices[2], *t.normal[2]);
